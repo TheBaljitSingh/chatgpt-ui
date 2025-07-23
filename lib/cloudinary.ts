@@ -1,37 +1,37 @@
-import { v2 as cloudinary } from 'cloudinary';
+// import { v2 as cloudinary } from 'cloudinary';
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// cloudinary.config({
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET,
+// });
 
-export const uploadToCloudinary = async (file: File): Promise<{
-  public_id: string;
-  secure_url: string;
-}> => {
-  const buffer = await file.arrayBuffer();
-  const bytes = Buffer.from(buffer);
+// export const uploadToCloudinary = async (file: File): Promise<{
+//   public_id: string;
+//   secure_url: string;
+// }> => {
+//   const buffer = await file.arrayBuffer();
+//   const bytes = Buffer.from(buffer);
 
-  return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload_stream({
-      resource_type: 'auto',
-      folder: 'chatgpt-clone',
-    }, (error, result) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve({
-          public_id: result!.public_id,
-          secure_url: result!.secure_url,
-        });
-      }
-    }).end(bytes);
-  });
-};
+//   return new Promise((resolve, reject) => {
+//     cloudinary.uploader.upload_stream({
+//       resource_type: 'auto',
+//       folder: 'chatgpt-clone',
+//     }, (error, result) => {
+//       if (error) {
+//         reject(error);
+//       } else {
+//         resolve({
+//           public_id: result!.public_id,
+//           secure_url: result!.secure_url,
+//         });
+//       }
+//     }).end(bytes);
+//   });
+// };
 
-export const deleteFromCloudinary = async (publicId: string) => {
-  return cloudinary.uploader.destroy(publicId);
-};
+// export const deleteFromCloudinary = async (publicId: string) => {
+//   return cloudinary.uploader.destroy(publicId);
+// };
 
-export default cloudinary;
+// export default cloudinary;

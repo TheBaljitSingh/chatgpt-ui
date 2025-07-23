@@ -6,35 +6,20 @@ if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable');
 }
 
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
-
 async function connectToDatabase() {
-  if (cached.conn) {
-    return cached.conn;
-  }
-
-  if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+  if (mongoose.connection.readyState >= 1) {
+    return mongoose.connection;
   }
 
   try {
-    cached.conn = await cached.promise;
-  } catch (e) {
-    cached.promise = null;
-    throw e;
+    await mongoose.connect(MONGODB_URI, {
+      bufferCommands: false,
+    });
+    return mongoose.connection;
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw new Error('Failed to connect to MongoDB');
   }
-
-  return cached.conn;
 }
 
 export default connectToDatabase;
@@ -51,8 +36,8 @@ const MessageSchema = new mongoose.Schema({
     type: String,
     size: Number,
     url: String,
-    cloudinaryId: String
-  }]
+    cloudinaryId: String,
+  }],
 });
 
 const ConversationSchema = new mongoose.Schema({
@@ -61,7 +46,8 @@ const ConversationSchema = new mongoose.Schema({
   messages: [MessageSchema],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  userId: { type: String, required: false }
+  userId: { type: String, required: false },
 });
 
-export const ConversationModel = mongoose.models.Conversation || mongoose.model('Conversation', ConversationSchema);
+export const ConversationModel =
+  mongoose.models.Conversation || mongoose.model('Conversation', ConversationSchema);

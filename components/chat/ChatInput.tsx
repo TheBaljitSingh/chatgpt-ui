@@ -7,7 +7,7 @@ import axios from "axios";
 
 
 interface ChatInpuptProps {
-  onSend: (message: string, attachments?:FileAttachment[]) => void;
+  onSend: (message: string, attachments?:FileAttachment[]) => void | Promise<void>;
   placeholder?: string;
   disabled?: boolean;
   maxRows?: number;

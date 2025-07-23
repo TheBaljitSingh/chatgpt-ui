@@ -171,7 +171,7 @@ const sendMessage = useCallback(async (
 
     console.log('Message sent successfully, response length:', assistantMessage.length);
 
-  } catch (error) {
+  } catch (error:any) {
     if (error.name !== 'AbortError') {
       console.error('Error sending message:', error);
       
@@ -181,7 +181,7 @@ const sendMessage = useCallback(async (
         role: 'assistant',
         content: `Sorry, I encountered an error while processing your message: ${error.message}. Please try again.`,
         timestamp: new Date(),
-        isError: true, // Add this flag to style error messages differently
+        // isError: true, // Add this flag to style error messages differently
       };
 
       setConversations(prev => prev.map(c =>

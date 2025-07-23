@@ -29,7 +29,7 @@ export const ChatContainer = () => {
   } = useChat();
 
  
-  const handleSendMessage = async (content: string, attachments: FileAttachment[]) => {
+  const handleSendMessage = async (content: string, attachments?: FileAttachment[]):Promise<void> => {
     await sendMessage(content, attachments);
   };
 

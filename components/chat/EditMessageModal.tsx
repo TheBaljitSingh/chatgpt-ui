@@ -9,6 +9,7 @@ interface EditMessageModalProps {
   message: Message;
   onSave: (messageId: string, newContent: string) => void;
   onCancel: () => void;
+  onClose:()=>void
 }
 
 export const EditMessageModal = ({ message, onSave, onCancel, onClose }: EditMessageModalProps) => {

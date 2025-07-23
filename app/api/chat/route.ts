@@ -226,18 +226,18 @@ export async function POST(req: NextRequest) {
     await connectToDatabase();
 
     // Get memory context for better responses
-    const memoryContext = await memoryService.getContext(userId, conversationId);
+    // const memoryContext = await memoryService.getContext(userId, conversationId);
 
     // Process messages and handle attachments
     const processedMessages = await processMessageAttachments(messages);
 
     // Add memory context if available
-    if (memoryContext) {
-      processedMessages.unshift({
-        role: 'system',
-        content: `Context from previous conversations: ${memoryContext.summary}. Key points: ${memoryContext.keyPoints.join(', ')}`,
-      });
-    }
+    // if (memoryContext) {
+    //   processedMessages.unshift({
+    //     role: 'system',
+    //     content: `Context from previous conversations: ${memoryContext.summary}. Key points: ${memoryContext.keyPoints.join(', ')}`,
+    //   });
+    // }
 
     // Handle context window - keep only recent messages if too long
     const MAX_CONTEXT_MESSAGES = 20;
@@ -248,7 +248,7 @@ export async function POST(req: NextRequest) {
     // Check if any message has multimodal content (images or files)
     const hasMultimodalContent = contextMessages.some(msg => 
       Array.isArray(msg.content) && 
-      msg.content.some(part => part.type === 'image' || part.type === 'file')
+      msg.content.some((part:any) => part.type === 'image' || part.type === 'file')
     );
 
     // Use Gemini 2.0 Flash for both text and multimodal content
@@ -282,7 +282,7 @@ export async function POST(req: NextRequest) {
               ...messages,
               { role: 'assistant', content: aiResponse.trim() }
             ];
-            await memoryService.addConversation(userId, conversationId, completeConversation);
+            // await memoryService.addConversation(userId, conversationId, completeConversation);
           }
           
           controller.close();
