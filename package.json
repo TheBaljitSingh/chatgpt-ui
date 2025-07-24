@@ -12,6 +12,7 @@
     "@ai-sdk/anthropic": "^1.2.12",
     "@ai-sdk/google": "^1.2.22",
     "@ai-sdk/react": "^1.2.12",
+    "@clerk/nextjs": "^6.25.5",
     "@google/generative-ai": "^0.24.1",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-tooltip": "^1.2.7",

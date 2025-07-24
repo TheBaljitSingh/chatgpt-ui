@@ -2,8 +2,6 @@
 
 import React, { useState } from 'react';
 import {
-  PanelLeftClose,
-  PanelLeftOpen,
   Search,
   SquarePen,
   Edit3,
@@ -17,14 +15,20 @@ import {
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+
 import ChatGPTLogo from '@/public/chatgpt.png'
 import Pannel from "@/public/pannel.svg"
+import { useUser } from '@clerk/nextjs'
 
 export default function SideNav() {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [hoveredChat, setHoveredChat] = useState<string | null>(null);
   const [isHoverOnLogo, setIsHoverOnLogo] = useState(false);
+  const { user } = useUser();
+
+  console.log(user);
 
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
@@ -65,7 +69,7 @@ export default function SideNav() {
         <div className={cn(
           'flex items-center border-b border-gray-700 p-3',
           isExpanded ? 'justify-between' : 'justify-center '
-        )}  >
+        )}>
           {isExpanded ? (
             <>
               <Image
@@ -80,22 +84,20 @@ export default function SideNav() {
               >
                 <Image style={{filter:"invert(1)"}} 
                  src={Pannel} alt="Panel Icon" width={24} height={24} />
-                
               </button>
             </>
           ) : (
-            <div  >
-              {isHoverOnLogo && window.innerWidth > 768 ? ( // don't use in mobile
+            <div>
+              {isHoverOnLogo && typeof window !== 'undefined' && window.innerWidth > 768 ? (
                 <button
                   onMouseEnter={() => setIsHoverOnLogo(true)}
                   onMouseLeave={() => setIsHoverOnLogo(false)}
                   onClick={toggleSidebar}
-                  className="p-2  text-white hover:bg-gray-700 rounded-md hover:cursor-e-resize"
+                  className="p-2 text-white hover:bg-gray-700 rounded-md hover:cursor-e-resize"
                   title="Expand sidebar"
                 >
-                <Image  style={{filter:"invert(1)"}}
-                src={Pannel}  alt="Panel Icon" width={22} height={22} />
-                  
+                  <Image style={{filter:"invert(1)"}}
+                    src={Pannel} alt="Panel Icon" width={22} height={22} />
                 </button>
               ) : (
                 <div onMouseEnter={() => setIsHoverOnLogo(true)}>
@@ -172,25 +174,56 @@ export default function SideNav() {
         {/* Bottom Section */}
         <div className="border-t border-gray-700 p-3 space-y-2">
           {isExpanded ? (
-            <button className="flex items-center gap-3 rounded-lg p-3 text-white hover:bg-gray-800 w-full">
-              <User size={18} />
-              <span className="text-sm">User Name</span>
-            </button>
+            <div>
+              <SignedOut>
+                <div className="space-y-2">
+                  <SignInButton mode="modal">
+                    <button className="flex items-center gap-3 rounded-lg p-3 text-white hover:bg-gray-800 w-full">
+                      <User size={18} />
+                      <span className="text-sm">Sign In</span>
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="flex items-center gap-3 rounded-lg p-3 text-white hover:bg-gray-800 w-full">
+                      <User size={18} />
+                      <span className="text-sm">Sign Up</span>
+                    </button>
+                  </SignUpButton>
+                </div>
+              </SignedOut>
+              <SignedIn>
+                <div className="flex items-center gap-3 rounded-lg p-3 text-white hover:bg-gray-800 w-full">
+                  <UserButton 
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-8 h-8"
+                      }
+                    }}
+                    showName={false}
+                  />
+                  <span className="text-sm">{user?.fullName}</span>
+                </div>
+              </SignedIn>
+            </div>
           ) : (
-            <>
-              <button
-                className="w-full p-3 text-white hover:bg-gray-800 rounded-lg flex items-center justify-center"
-                title="Settings"
-              >
-                <Settings size={18} />
-              </button>
-              <button
-                className="w-full p-3 text-white hover:bg-gray-800 rounded-lg flex items-center justify-center"
-                title="User Profile"
-              >
-                <User size={18} />
-              </button>
-            </>
+            <div className="flex justify-center">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="p-3 text-white hover:bg-gray-800 rounded-lg">
+                    <User size={18} />
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton 
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-8 h-8"
+                    }
+                  }}
+                />
+              </SignedIn>
+            </div>
           )}
         </div>
       </div>
@@ -199,7 +232,7 @@ export default function SideNav() {
       {!isMobileOpen && (
         <button
           onClick={toggleMobileSidebar}
-          className="fixed top-4 left-4 z-40 p-2 bg-gray-900 text-white rounded-lg lg:hidden"
+          className="fixed top-4 z-40 p-2 bg-gray-900 text-white rounded-lg lg:hidden"
         >
           <Menu size={20} />
         </button>
