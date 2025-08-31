@@ -18,8 +18,8 @@ import { cn } from '@/lib/utils';
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 
 import ChatGPTLogo from '@/public/chatgpt.png'
-import Pannel from "@/public/pannel.svg"
-import { useUser } from '@clerk/nextjs'
+
+// import Pannel from "@/public/pannel.svg"
 
 export default function SideNav() {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -83,7 +83,9 @@ export default function SideNav() {
                 title="Collapse sidebar"
               >
                 <Image style={{filter:"invert(1)"}} 
-                 src={Pannel} alt="Panel Icon" width={24} height={24} />
+
+                 src='/pannel.svg alt="Panel Icon" width={24} height={24} />
+                
               </button>
             </>
           ) : (
@@ -96,8 +98,10 @@ export default function SideNav() {
                   className="p-2 text-white hover:bg-gray-700 rounded-md hover:cursor-e-resize"
                   title="Expand sidebar"
                 >
-                  <Image style={{filter:"invert(1)"}}
-                    src={Pannel} alt="Panel Icon" width={22} height={22} />
+                <Image  style={{filter:"invert(1)"}}
+                src='/pannel.svg' alt="Panel Icon" width={22} height={22} />
+                  
+
                 </button>
               ) : (
                 <div onMouseEnter={() => setIsHoverOnLogo(true)}>
