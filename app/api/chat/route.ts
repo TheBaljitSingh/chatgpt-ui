@@ -221,6 +221,7 @@ export async function POST(req: NextRequest) {
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       throw new Error('GOOGLE_GENERATIVE_AI_API_KEY is not configured');
     }
+    const s = conversationId;
 
     // Connect to database
     await connectToDatabase();
