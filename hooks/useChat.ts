@@ -56,34 +56,6 @@ const sendMessage = useCallback(async (
   setIsLoading(true);
   setStreamingMessage('');
 
-//   const toGeminiMessageFormat = (message: Message): { role: 'user' | 'assistant'; content: any } => {
-//   // If message has attachments, convert to multimodal content
-//   if (message.attachments && message.attachments.length > 0) {
-//     const parts = [];
-
-//     if (message.content) {
-//       parts.push({ type: 'text', text: message.content });
-//     }
-
-//     for (const attachment of message.attachments) {
-//       parts.push({
-//         type: 'file_data',
-//         fileUri: attachment.url, // or wherever the Gemini-compatible file URI is
-//         mimeType: attachment.type,
-//       });
-//     }
-
-//     return {
-//       role: message.role,
-//       content: parts,
-//     };
-//   }
-
-//   return {
-//     role: message.role,
-//     content: message.content,
-//   };
-// };
 
 
   try {
@@ -97,7 +69,6 @@ const sendMessage = useCallback(async (
       body: JSON.stringify({
         messages: [...conversation.messages, userMessage],
         conversationId: conversation.id,
-        userId: 'testuser-1'
       }),
       signal: abortControllerRef.current.signal,
     });

@@ -5,6 +5,10 @@ import { Message, FileAttachment } from '@/types';
 import connectToDatabase from '@/lib/mongodb';
 import { ConversationModel } from '@/lib/mongodb';
 import { memoryService } from '@/lib/memory';
+import { auth, getAuth } from '@clerk/nextjs/server';
+import {v4 as uuid} from 'uuid';
+import { ConversationService  } from '@/services/conversationService';
+
 
 // Helper function to fetch file content from Cloudinary URL
 async function fetchFileContent(url: string): Promise<string | null> {
@@ -213,7 +217,12 @@ async function processMessageAttachments(messages: Message[]): Promise<any[]> {
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, conversationId, userId } = await req.json();
+    const { messages, conversationId,  } = await req.json();
+    let { userId } = getAuth(req);
+    
+    if(!userId){
+      userId = 'testUser-1'; // don't save it in db
+    }
 
     console.log("Detailed message with attachments URL: ", messages);
 
@@ -224,12 +233,21 @@ export async function POST(req: NextRequest) {
 
     // Connect to database
     await connectToDatabase();
+    const existingConversation = await ConversationService.getConversation(userId, conversationId);
+    let allMessage = [];
+
+    if(existingConversation){
+      allMessage = [...existingConversation.message, ...messages];
+    }else{
+      allMessage = messages;
+    }
+    
 
     // Get memory context for better responses
     // const memoryContext = await memoryService.getContext(userId, conversationId);
 
     // Process messages and handle attachments
-    const processedMessages = await processMessageAttachments(messages);
+    const processedMessages = await processMessageAttachments(allMessage); // previouslty (message);
 
     // Add memory context if available
     // if (memoryContext) {
@@ -278,13 +296,53 @@ export async function POST(req: NextRequest) {
           
           // Save conversation to memory if there's a meaningful response
           if (aiResponse.trim()) {
-            const completeConversation = [
-              ...messages,
-              { role: 'assistant', content: aiResponse.trim() }
+            const assistantMessage = { 
+              role: 'assistant', 
+              content: aiResponse.trim(),
+              timestamp: new Date()
+            };
+            
+            // Add timestamp to user messages if not present
+            const userMessagesWithTimestamp = messages.map((msg: any) => ({
+              ...msg,
+              timestamp: msg.timestamp || new Date()
+            }));
+            
+            // Complete conversation with all messages
+            const completeMessages = [
+              ...(existingConversation ? existingConversation.messages : []),
+              ...userMessagesWithTimestamp,
+              assistantMessage
             ];
+
+                 // Generate title if this is a new conversation
+            let title = existingConversation?.title;
+            if (!existingConversation && messages.length > 0) {
+              const firstUserMessage = messages.find((msg: any) => msg.role === 'user');
+              if (firstUserMessage) {
+                const content = typeof firstUserMessage.content === 'string' 
+                  ? firstUserMessage.content 
+                  : JSON.stringify(firstUserMessage.content);
+                title = ConversationService.generateTitle(content);
+              }
+            }
+            
+            // Save the complete conversation
+            await ConversationService.saveConversation(
+              userId, 
+              conversationId, 
+              completeMessages,
+              title
+            );
+
+            // const completeConversation = [
+            //   ...messages,
+            //   { role: 'assistant', content: aiResponse.trim() }
+            // ];
             // await memoryService.addConversation(userId, conversationId, completeConversation);
           }
           
+
           controller.close();
         } catch (streamError) {
           console.error('Streaming error:', streamError);
@@ -311,6 +369,32 @@ export async function POST(req: NextRequest) {
         error: 'Internal server error', 
         message: error instanceof Error ? error.message : 'Unknown error'
       },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: NextRequest, { params }: { params: { conversationId: string } }) {
+  try {
+    const { userId } = getAuth(req);
+    
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await connectToDatabase();
+    
+    const conversation = await ConversationService.getConversation(userId, params.conversationId);
+    
+    if (!conversation) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(conversation);
+  } catch (error) {
+    console.error('Get conversation error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }
