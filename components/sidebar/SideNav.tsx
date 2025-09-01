@@ -19,7 +19,6 @@ import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@cl
 
 import ChatGPTLogo from '@/public/chatgpt.png'
 
-// import Pannel from "@/public/pannel.svg"
 
 export default function SideNav() {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -37,14 +36,6 @@ export default function SideNav() {
 
   const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
 
-  const chats = [
-    { id: '1', title: 'React component optimization', timestamp: '2 hours ago' },
-    { id: '2', title: 'Next.js routing questions', timestamp: '1 day ago' },
-    { id: '3', title: 'TypeScript best practices', timestamp: '2 days ago' },
-    { id: '4', title: 'CSS Grid vs Flexbox', timestamp: '3 days ago' },
-    { id: '5', title: 'Database design patterns', timestamp: '1 week ago' },
-    { id: '6', title: 'API integration help', timestamp: '1 week ago' },
-  ];
 
   return (
     <>
@@ -83,14 +74,15 @@ export default function SideNav() {
                 title="Collapse sidebar"
               >
                 <Image style={{filter:"invert(1)"}} 
+                 src='/pannel.svg' alt="Panel Icon" width={24} height={24} />
 
-                 src='/pannel.svg alt="Panel Icon" width={24} height={24} />
                 
               </button>
             </>
           ) : (
-            <div>
-              {isHoverOnLogo && typeof window !== 'undefined' && window.innerWidth > 768 ? (
+            <div  >
+              {isHoverOnLogo &&( window.innerWidth > 768 )? ( // don't use in mobile
+
                 <button
                   onMouseEnter={() => setIsHoverOnLogo(true)}
                   onMouseLeave={() => setIsHoverOnLogo(false)}
@@ -137,7 +129,7 @@ export default function SideNav() {
                   <Search size={20} />
                   <span className="text-sm font-medium">Search Chat</span>
                 </button>
-                <p className="text-gray-400 text-sm mt-2 mb-1">Chats</p>
+                {/* <p className="text-gray-400 text-sm mt-2 mb-1">Chats</p> */}
               </>
             ) : (
               <div className="flex flex-col items-center gap-4">
@@ -146,32 +138,7 @@ export default function SideNav() {
               </div>
             )}
 
-            {isExpanded && chats.map((chat) => (
-              <div
-                key={chat.id}
-                className="group relative"
-                onMouseEnter={() => setHoveredChat(chat.id)}
-                onMouseLeave={() => setHoveredChat(null)}
-              >
-                <button className="flex items-center gap-3 rounded-lg p-3 text-white hover:bg-gray-800 w-full text-left">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate">{chat.title}</p>
-                  </div>
-                </button>
-
-                {/* Chat actions */}
-                {hoveredChat === chat.id && (
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1 bg-gray-800 rounded-lg p-1">
-                    <button className="p-1.5 text-gray-300 hover:text-white hover:bg-gray-700 rounded">
-                      <Edit3 size={14} />
-                    </button>
-                    <button className="p-1.5 text-gray-300 hover:text-white hover:bg-gray-700 rounded">
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
+          
           </div>
         </div>
 
